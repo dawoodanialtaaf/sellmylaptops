@@ -1,0 +1,350 @@
+<?php
+$meta_title = "Affiliate Complete Order";
+$meta_keywords = "Affiliate Complete Order";
+$meta_desc = "Affiliate Complete Order"; ?>
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="IE=edge" >
+
+<meta name="keywords" content="<?=$meta_keywords?>" />
+<meta name="description" content="<?=$meta_desc?>" />
+<title><?=$meta_title?></title>
+
+<!-- Jquery Data Table -->
+<link rel="stylesheet" type="text/css" href="<?=SITE_URL?>assets/css/jquery.dataTables.css">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="<?=SITE_URL?>assets/css/style.css">
+<link rel="stylesheet" href="<?=SITE_URL?>assets/css/constant.css">
+<link rel="stylesheet" href="<?=SITE_URL?>assets/css/color.css">  
+<link rel="stylesheet" href="<?=SITE_URL?>assets/css/intlTelInput.css">
+<link rel="stylesheet" href="<?=SITE_URL?>assets/css/custom.css">
+
+<style>
+.d-none{display:none;}
+.hide{display:none;}
+</style>
+
+<script src="<?=SITE_URL?>assets/js/jquery-3.3.1.min.js"></script>
+<script src="<?=SITE_URL?>assets/js/jquery.scrollTo.min.js"></script>
+
+<?php
+echo $custom_js_code; ?>
+</head>
+<body class="inner">
+
+<?php
+$shipment_label_api_error_msg = "";
+if(isset($_SESSION['shipment_label_api_error_msg'])) {
+	$shipment_label_api_error_msg = $_SESSION['shipment_label_api_error_msg'];
+	unset($_SESSION['shipment_label_api_error_msg']);
+}
+
+//Get order id
+$order_id = $_SESSION[$session_front_affiliate_tmp_order_id];
+
+if(!$order_id) {
+	setRedirect(SITE_URL);
+	exit();
+}
+
+//Get order batch data, path of this function (get_order_data) admin/_config/functions.php
+$order_data = get_order_data($order_id);
+$access_token = $order_data['access_token'];
+
+$affiliate_data = get_affiliate_data_by_id($order_data['affiliate_id']);
+
+$affiliate_form_link = SITE_URL.get_inbuild_page_url('affiliates');
+$affiliate_form_link = $affiliate_form_link.'/?shop='.$affiliate_data['shop_name'];
+
+//Get order price based on orderID, path of this function (get_order_price) admin/_config/functions.php
+$sum_of_orders = get_order_price($order_id);
+
+$total_of_order = $sum_of_orders;
+if($order_data['promocode_id']>0 && $order_data['promocode_amt']>0) {
+	$total_of_order = $total_of_order+$order_data['promocode_amt'];
+}
+
+$express_service = !empty($order_data['express_service'])?$order_data['express_service']:0;
+$express_service_price = !empty($order_data['express_service_price'])?$order_data['express_service_price']:0;
+$shipping_insurance = !empty($order_data['shipping_insurance'])?$order_data['shipping_insurance']:0;
+$shipping_insurance_per = !empty($order_data['shipping_insurance_per'])?$order_data['shipping_insurance_per']:0;
+
+$f_express_service_price = 0;
+$f_shipping_insurance_price = 0;
+if($express_service == '1') {
+	$total_of_order = $total_of_order-$express_service_price;
+}
+if($shipping_insurance == '1') {
+	$total_of_order = $total_of_order-($sum_of_orders*$shipping_insurance_per/100);
+}
+
+$o_page_type = "";
+if($order_data['sales_pack'] == "post_me_a_prepaid_label") {
+	$o_page_type = "affiliate_post_me_a_prepaid_label";
+} elseif($order_data['sales_pack'] == "print_a_prepaid_label") {
+	$o_page_type = "affiliate_print_a_prepaid_label";
+} elseif($order_data['sales_pack'] == "use_my_own_courier") {
+	$o_page_type = "affiliate_use_my_own_courier";
+} elseif($order_data['sales_pack'] == "store") {
+	$o_page_type = "affiliate_store";
+} elseif($order_data['sales_pack'] == "starbucks") {
+	$o_page_type = "affiliate_starbucks";
+} elseif($order_data['sales_pack'] == "we_come_for_you") {
+	$o_page_type = "affiliate_we_come_for_you";
+}
+
+$order_complete_page_data = get_order_complete_page_data($o_page_type);
+
+$success_page_content = json_decode($order_complete_page_data['content_fields'],true);
+if(empty($success_page_content['heading'])) {
+	$success_page_content['heading'] = '';
+}
+if(empty($success_page_content['sub_heading'])) {
+	$success_page_content['sub_heading'] = '';
+}
+if(empty($success_page_content['intro_text'])) {
+	$success_page_content['intro_text'] = '';
+}
+if(empty($success_page_content['step_heading'])) {
+	$success_page_content['step_heading'] = '';
+}
+if(empty($success_page_content['step_sub_heading'])) {
+	$success_page_content['step_sub_heading'] = '';
+}
+if(empty($success_page_content['step1_title'])) {
+	$success_page_content['step1_title'] = '';
+}
+if(empty($success_page_content['step1_instruction'])) {
+	$success_page_content['step1_instruction'] = '';
+}
+if(empty($success_page_content['step1_icon'])) {
+	$success_page_content['step1_icon'] = '';
+}
+if(empty($success_page_content['step2_title'])) {
+	$success_page_content['step2_title'] = '';
+}
+if(empty($success_page_content['step2_instruction'])) {
+	$success_page_content['step2_instruction'] = '';
+}
+if(empty($success_page_content['step2_icon'])) {
+	$success_page_content['step2_icon'] = '';
+}
+if(empty($success_page_content['step3_title'])) {
+	$success_page_content['step3_title'] = '';
+}
+if(empty($success_page_content['step3_instruction'])) {
+	$success_page_content['step3_instruction'] = '';
+}
+if(empty($success_page_content['step3_icon'])) {
+	$success_page_content['step3_icon'] = '';
+}
+
+$heading_text = $success_page_content['heading'];
+$sub_heading_text = $success_page_content['sub_heading'];
+$intro_text = $success_page_content['intro_text'];
+$step_heading_text = $success_page_content['step_heading'];
+$step_sub_heading_text = $success_page_content['step_sub_heading'];
+$step1_title_text = $success_page_content['step1_title'];
+$step1_instruction_text = $success_page_content['step1_instruction'];
+$step1_icon = $success_page_content['step1_icon'];
+$step2_title_text = $success_page_content['step2_title'];
+$step2_instruction_text = $success_page_content['step2_instruction'];
+$step2_icon = $success_page_content['step2_icon'];
+$step3_title_text = $success_page_content['step3_title'];
+$step3_instruction_text = $success_page_content['step3_instruction'];
+$step3_icon = $success_page_content['step3_icon'];
+?>
+
+<section>
+<div class="container-fluid">
+  <div class="row">
+   <div class="col-md-12">
+	  <div class="block setting-page py-0 clearfix">
+		<div class="row">
+		   <div class="col-md-6 order-md-2">
+			 <div class="block heading shipping-heading page-heading">
+			   <?php
+			   if($heading_text) {
+			   	   echo '<h3>'.nl2br($heading_text).'</h3>';
+			   } ?>
+			 </div>
+			 <div class="block shipping-info">
+				<?php
+				$shipment_label_broker_id = $order_data['shipment_label_broker_id'];
+				$shipment_label_broker_qrcode_url = $order_data['shipment_label_broker_qrcode_url'];
+				
+				if($sub_heading_text) {
+					echo '<p>'.str_replace('${order_id}','<span>'.$order_id.'</span>',nl2br($sub_heading_text)).'</p>';
+				}
+
+				$shipment_label_d_url = '';
+				$shipment_label_url = $order_data['shipment_label_url'];
+				if($order_data['sales_pack']=="print_a_prepaid_label" && $shipment_label_url!="") {
+					$shipment_label_d_url = SITE_URL.'controllers/download.php?download_link='.$shipment_label_url;
+					if($order_data['shipment_tracking_code']) {
+						echo '<p>'._lang('shipping_label_tracking_code_label_text','order_completion').' <span># '.$order_data['shipment_tracking_code'].'</span></p>';
+					}
+				} elseif($order_data['sales_pack']=="print_a_prepaid_label" && $shipment_label_url=="" && $shipping_option['print_a_prepaid_label'] == "print_a_prepaid_label") { ?>
+					<p><div class="alert alert-info alert-dismissable"><?=_lang('unable_to_create_shipment_message_text','order_completion').($shipment_label_api_error_msg?'<br>'.$shipment_label_api_error_msg:'')?></div></p>
+				<?php
+				}
+				if($intro_text) {
+			   	   echo '<p>'.nl2br($intro_text).'</p>';
+			    }
+				if($show_cust_delivery_note == '1') { ?>
+					<a class="btn btn-primary btn-lg rounded-pill mb-3" href="javascript:open_window('<?=SITE_URL?>views/print/print_delivery_note.php?order_id=<?=$order_id.'&access_token='.$access_token?>')"><?=_lang('delivery_note_button_text','order_completion')?> <i class="fas fa-download"></i></a>
+				<?php
+				}
+				if($show_cust_order_form == '1' && $order_data['packing_slip']) { ?>
+					<a class="btn btn-primary btn-lg rounded-pill mb-3" href="<?=SITE_URL?>media/pdf/<?=$order_data['packing_slip']?>" target="_blank"><?=_lang('packing_slip_button_text','order_completion')?> <i class="fas fa-download"></i></a>
+				<?php
+				}
+				if($show_cust_sales_confirmation == '1') { ?>
+					<a class="btn btn-primary btn-lg rounded-pill mb-3" href="<?=SITE_URL?>views/print/sales_confirmation.php?order_id=<?=$order_id.'&access_token='.$access_token?>" target="_blank"><?=_lang('receipt_button_text','order_completion')?> <i class="fas fa-download"></i></a>
+				<?php
+				}
+				if($shipment_label_broker_qrcode_url) {
+					$shipment_label_broker_qrcode_d_url = SITE_URL.'controllers/download.php?download_link='.$shipment_label_broker_qrcode_url; ?>
+					<a class="btn btn-primary btn-lg rounded-pill mb-3" href="<?=$shipment_label_broker_qrcode_d_url?>"><?=_lang('label_broker_qrcode_button_text','order_completion')?> <i class="fas fa-download"></i></a>
+				<?php
+				} ?>
+			 </div>
+		   </div>
+		   <div class="col-md-6 order-md-1">
+			 <div class="block shipping-head-img text-center">
+			   <img src="<?=SITE_URL?>media/images/icons/success.png" alt="">
+			 </div>
+		   </div>
+		</div>
+		<div class="row">
+		  <div class="col-md-12">
+			<div class="block heading page-heading shipping-step-heading text-center">
+				<?php
+				if($step_heading_text) {
+					echo '<h3>'.nl2br($step_heading_text).'</h3>';
+				}
+				if($step_sub_heading_text) {
+					echo '<h4>'.nl2br($step_sub_heading_text).'</h4>';
+				} ?>
+			</div>
+		  </div>
+		</div>
+		<div class="row justify-content-center">
+		  <div class="col-md-12">
+			<div class="block shipping-step">
+			  <?php
+			  if($step1_icon || $step1_title_text || $step1_instruction_text) { ?>
+				  <div class="row">
+					<div class="col-md-3 d-none d-lg-block text-center">
+						<?php
+						if($step1_icon) {
+							echo '<img src="'.SITE_URL.'/media/images/order_complete/'.$step1_icon.'" alt="'.$step1_title_text.'">';
+						} ?>
+					</div>
+					<div class="col-md-12 col-lg-9 text-content">
+					  <div class="step-number d-lg-none">
+						<div>
+						  <span class="text">1</span>
+						</div>
+					  </div>
+					  <h4 class="clearfix">
+						<img class="d-lg-none" src="<?=SITE_URL?>media/images/icons/prepare_device.png" alt="">
+						<?php
+						if($step1_title_text) {
+							echo '<span>'.nl2br($step1_title_text).'</span>';
+						} ?>
+					  </h4>
+					  <?php
+					  if($step1_instruction_text) {
+						echo '<p>'.nl2br($step1_instruction_text).'</p>';
+					  } ?>
+					</div>
+				  </div>
+			  <?php
+			  }
+			  if($step2_icon || $step2_title_text || $step2_instruction_text) { ?>
+				  <div class="row">
+					<div class="col-md-12 col-lg-9 text-content">
+					   <div class="step-number d-lg-none">
+						 <div>
+						   <span class="text">2</span>
+						 </div>
+					   </div>
+					  <h4 class="clearfix">
+						<?php
+						if($step2_icon) {
+							echo '<img class="d-lg-none" src="'.SITE_URL.'/media/images/order_complete/'.$step2_icon.'" alt="'.$step2_title_text.'">';
+						}
+						if($step2_title_text) {
+							echo '<span>'.nl2br($step2_title_text).'</span>';
+						} ?>
+					  </h4>
+					  <?php
+					  if($step2_instruction_text) {
+						echo '<p>'.nl2br($step2_instruction_text).'</p>';
+					  } ?>
+					</div>
+					<div class="col-md-3 text-center d-none d-lg-block">
+					  <img src="<?=SITE_URL?>media/images/icons/success_package.png" alt="">
+					</div>
+				  </div>
+			  <?php
+			  }
+			  if($step3_icon || $step3_title_text || $step3_instruction_text) { ?>
+				  <div class="row">
+					<div class="col-md-3  d-none d-lg-block text-center">
+						<?php
+						if($step3_icon) {
+							echo '<img src="'.SITE_URL.'/media/images/order_complete/'.$step3_icon.'" alt="'.$step3_title_text.'">';
+						} ?>
+					</div>
+					<div class="col-md-12 col-lg-9 text-content">
+					  <div class="step-number d-lg-none">
+						<div>
+						  <span class="text">3</span>
+						</div>
+					  </div>
+					  <h4 class="clearfix">
+						<img class="d-lg-none" src="<?=SITE_URL?>media/images/icons/print_label.png" alt="">
+						<?php
+						if($step3_title_text) {
+							echo '<span>'.nl2br($step3_title_text).'</span>';
+						} ?>
+					  </h4>
+					  <?php
+					  if($step3_instruction_text) {
+						echo '<p>'.str_replace('${download_pdf_lebal_link}',$shipment_label_d_url,nl2br($step3_instruction_text)).'</p>';
+					  } ?>
+					</div>
+				  </div>
+			  <?php
+			  } ?>
+			</div>
+		  </div>
+		</div>
+	  </div>
+   </div>
+  </div>
+</div>
+</section>
+
+<script language="javascript" type="text/javascript">
+function open_window(url) {
+	window.open(url,"Loading",'toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=0,width=1000,height=800');
+}
+</script>
+<script src="<?=SITE_URL?>assets/js/popper.min.js"></script>
+<script src="<?=SITE_URL?>assets/js/bootstrap_4.3.1.min.js"></script>
+<script src="<?=SITE_URL?>assets/js/slick.min.js"></script>
+<script src="<?=SITE_URL?>assets/js/jquery.autocomplete.min.js"></script>
+<script src="<?=SITE_URL?>assets/js/jquery.dataTables.js"></script>
+<script src="<?=SITE_URL?>assets/js/dataTables.bootstrap4.min.js"></script>
+<script src="<?=SITE_URL?>assets/js/intlTelInput.js"></script>
+<script src="<?=SITE_URL?>assets/js/bootstrap-datepicker.min.js"></script>
+</body>
+</html>

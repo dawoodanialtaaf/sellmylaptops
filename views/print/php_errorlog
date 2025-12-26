@@ -1,0 +1,4 @@
+[01-Jul-2025 13:35:27 UTC] PHP Warning:  Undefined array key "order_id" in /home/customer/www/sellmylaptops.com/public_html/views/print/sales_confirmation.php on line 4
+[01-Jul-2025 13:35:27 UTC] PHP Warning:  Undefined array key "access_token" in /home/customer/www/sellmylaptops.com/public_html/views/print/sales_confirmation.php on line 5
+[01-Jul-2025 14:44:38 UTC] PHP Warning:  Undefined array key "order_id" in /home/customer/www/sellmylaptops.com/public_html/views/print/print_delivery_note.php on line 4
+[01-Jul-2025 14:44:38 UTC] PHP Warning:  Undefined array key "access_token" in /home/customer/www/sellmylaptops.com/public_html/views/print/print_delivery_note.php on line 5
